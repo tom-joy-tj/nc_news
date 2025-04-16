@@ -1,5 +1,6 @@
 const {
-  convertTimestampToDate
+  convertTimestampToDate, 
+  createRef
 } = require("../db/seeds/utils");
 
 describe("convertTimestampToDate", () => {
@@ -36,5 +37,52 @@ describe("convertTimestampToDate", () => {
     const expected = { key: "value" };
     expect(result).toEqual(expected);
   });
+
+  describe( "testing the new utils function createRef" , () => {
+    test( "test1 - createRef should take empty array and return empty object", () => {
+      const input = []
+      const result = createRef(input)
+      expect(result).toEqual({})
+    })
+    test( "test2 - createRef should return a ref object with single key:value when passed an array with single nested object", () => {
+      const input = [{
+        article_id: 1,
+        title: 'Living in the shadow of a great man',
+        topic: 'mitch',
+        author: 'butter_bridge',
+        created_at: "2020-07-09T20:11:00.000Z",
+        body: 'I find this existence challenging',
+        votes: 100,
+        article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
+      }]
+      const result = createRef(input)
+      expect(result).toEqual({"Living in the shadow of a great man": 1})
+    })
+    test( "test3 - createRef should return a ref object with multiple key:value pairs when passed an array with multiple nested objects", () => {
+      const input = [{
+        article_id: 1,
+        title: 'Living in the shadow of a great man',
+        topic: 'mitch',
+        author: 'butter_bridge',
+        created_at: "2020-07-09T20:11:00.000Z",
+        body: 'I find this existence challenging',
+        votes: 100,
+        article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
+      },
+      {
+        article_id: 4,
+        title: 'Going to the shops',
+        topic: 'mitch',
+        author: 'butter_bridge',
+        created_at: "2020-07-09T20:11:00.000Z",
+        body: 'I find this existence challenging',
+        votes: 100,
+        article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
+      } 
+    ]
+      const result = createRef(input)
+      expect(result).toEqual({"Living in the shadow of a great man": 1, "Going to the shops": 4})
+    })
+  })
 });
 

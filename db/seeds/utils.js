@@ -5,5 +5,13 @@ exports.convertTimestampToDate = ({ created_at, ...otherProperties }) => {
   return { created_at: new Date(created_at), ...otherProperties };
 };
 
+exports.createRef = (articlesData) => {
+  const result = {};
+  articlesData.forEach((article) => {
+    result[article.title] = article.article_id;
+  })
+    return result;
+};
+
 
 
