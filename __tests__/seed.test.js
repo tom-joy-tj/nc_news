@@ -596,6 +596,15 @@ describe('data insertion', () => {
       });
     });
   });
+
+  test('extra test', () => {
+    return db.query(`SELECT * FROM comments;`).then(({ rows: comments }) => {
+      expect(comments).toHaveLength(18);
+      comments.forEach((comment) => {
+        expect(typeof comment.article_id).toBe("number");
+      });
+    });
+  });
 });
 
 
