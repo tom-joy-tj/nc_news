@@ -88,7 +88,7 @@ describe("GET /api/invalidendpoint", () => {
       .get("/api/invalidendpoint")
       .expect(404)
       .then( ( {body} ) => {
-      expect(body.msg).toBe("Endpoint not found")
+      expect(body.msg).toBe("Endpoint not found!")
       })
   });
 });
