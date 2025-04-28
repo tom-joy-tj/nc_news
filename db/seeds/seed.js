@@ -120,7 +120,7 @@ const formattedTopics = topicData.map((topic => {
       return db.query(insertedCommentQuery)
     })
     .then(() => {
-      console.log("Seed complete");
+      //console.log("Seed complete");
     });
 };
 

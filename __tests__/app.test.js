@@ -109,7 +109,6 @@ describe("GET /api/articles/:articleid", () => {
       .get("/api/articles/25")
       .expect(404)
       .then(({body}) => {
-        console.log(body)
         expect(body.msg).toBe("No article found at Article ID: 25!")
       });
   });
@@ -118,9 +117,35 @@ describe("GET /api/articles/:articleid", () => {
       .get("/api/articles/chicken")
       .expect(400)
       .then(({body}) => {
-        console.log(body)
         expect(body.msg).toBe("BAD REQUEST - PSQL ERROR!")
       });
   });
 });
 
+describe("GET /api/articles", () => {
+  test("200: should return an array of article objects with properties: author, title, article_id, topic, created_at, votes, article_img_url and comment_count - this is the total count of comments referencing this article_id", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then( ( {body} ) => {
+        expect(Array.isArray(body.articles)).toBe(true)
+        expect(body.articles).toHaveLength(13)
+        body.articles.forEach((article) => {
+          expect(article).toHaveProperty("author")
+          expect(article).toHaveProperty("title")
+          expect(article).toHaveProperty("article_id")
+          expect(article).toHaveProperty("topic")
+          expect(article).toHaveProperty("created_at")
+          expect(article).toHaveProperty("votes")
+          expect(article).toHaveProperty("article_img_url")
+          expect(article).toHaveProperty("comment_count")
+          expect(typeof article.comment_count).toBe("number") 
+          expect(article.comment_count).toBeGreaterThanOrEqual(0) // will always show 0 if there are no comments attached to this article_id
+        })
+          const articleOne = body.articles[0]
+          const articleTwo = body.articles[1]
+          expect(articleOne.comment_count).toBe(11)
+          expect(articleTwo.comment_count).toBe(0)
+      });
+  })
+})
