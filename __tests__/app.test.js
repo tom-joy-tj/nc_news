@@ -30,7 +30,6 @@ describe("GET /api/topics", () => {
       .get("/api/topics")
       .expect(200)
       .then( ( {body} ) => {
-        console.log(body.topics)
         expect(Array.isArray(body.topics)).toBe(true)
         expect(body.topics).toHaveLength(3)
         body.topics.forEach((topic) => {
@@ -41,3 +40,55 @@ describe("GET /api/topics", () => {
   });
 });
 
+describe("GET /api/articles/:articleid", () => {
+  test("200: Responds with an article object with properties of author, title, article_id, body, topic, created_at, votes, article_img_url", () => {
+    return request(app)
+      .get("/api/articles/3")
+      .expect(200)
+      .then(({body}) => {
+        expect(Array.isArray(body.article)).toBe(true)
+        expect(body.article).toHaveLength(1)
+        expect(body.article[0]).toBeInstanceOf(Object)
+        expect(body.article[0]).toHaveProperty("author")
+        expect(body.article[0]).toHaveProperty("title")
+        expect(body.article[0]).toHaveProperty("article_id")
+        expect(body.article[0]).toHaveProperty("body")
+        expect(body.article[0]).toHaveProperty("topic")
+        expect(body.article[0]).toHaveProperty("created_at")
+        expect(body.article[0]).toHaveProperty("votes")
+        expect(body.article[0]).toHaveProperty("article_img_url")
+      });
+  });
+
+  test("200: Responds with an article object with properties of author, title, article_id, body, topic, created_at, votes, article_img_url", () => {
+    return request(app)
+      .get("/api/articles/6")
+      .expect(200)
+      .then(({body}) => {
+        console.log(body.article[0])
+        console.log(body)
+        expect(Array.isArray(body.article)).toBe(true)
+        expect(body.article).toHaveLength(1)
+        expect(body.article[0]).toBeInstanceOf(Object)
+        expect(body.article[0]).toHaveProperty("author")
+        expect(body.article[0]).toHaveProperty("title")
+        expect(body.article[0]).toHaveProperty("article_id")
+        expect(body.article[0]).toHaveProperty("body")
+        expect(body.article[0]).toHaveProperty("topic")
+        expect(body.article[0]).toHaveProperty("created_at")
+        expect(body.article[0]).toHaveProperty("votes")
+        expect(body.article[0]).toHaveProperty("article_img_url")
+      });
+  })
+});
+
+describe("GET /api/invalidendpoint", () => {
+  test("404: Responds with an error message for all invalid endpoints", () => {
+    return request(app)
+      .get("/api/invalidendpoint")
+      .expect(404)
+      .then( ( {body} ) => {
+      expect(body.msg).toBe("Endpoint not found")
+      })
+  });
+});

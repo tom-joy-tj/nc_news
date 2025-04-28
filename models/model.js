@@ -8,3 +8,11 @@ exports.selectTopics = () => {
         return rows;
     })
 }
+
+exports.selectArticlesByID = (chosenArticle) => {
+    return db 
+    .query(`SELECT author, title, article_id, body, topic, created_at, votes, article_img_url FROM articles where article_id = $1`, [chosenArticle])
+    .then(({rows}) => {
+        return rows;
+    })
+}
