@@ -100,9 +100,9 @@ const formattedTopics = topicData.map((topic => {
     })
 
     .then((result) => {
-      console.log(result.rows);
+      //console.log(result.rows);
       const articlesRefObject = createRef(result.rows); //use the utility function on result.rows
-      console.log (articlesRefObject);
+      //console.log (articlesRefObject);
       const formattedComments = commentData.map((comment) => {
         const legitComment = convertTimestampToDate(comment)
         return [

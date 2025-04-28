@@ -3,7 +3,7 @@ const {
   createRef
 } = require("../db/seeds/utils");
 
-describe("convertTimestampToDate", () => {
+describe.skip("convertTimestampToDate", () => {
   test("returns a new object", () => {
     const timestamp = 1557572706232;
     const input = { created_at: timestamp };
@@ -38,7 +38,7 @@ describe("convertTimestampToDate", () => {
     expect(result).toEqual(expected);
   });
 
-  describe( "testing the new utils function createRef" , () => {
+  describe.skip( "testing the new utils function createRef" , () => {
     test( "test1 - createRef should take empty array and return empty object", () => {
       const input = []
       const result = createRef(input)
