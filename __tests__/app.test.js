@@ -49,7 +49,7 @@ describe("GET /api/topics", () => {
         })
       });
   });
-  test("slug and description properties should contain expected values and not be empty", () => {
+  test("200: Each object slug and description properties should contain expected values and not be empty", () => {
     return request(app)
       .get("/api/topics")
       .expect(200)
@@ -110,7 +110,7 @@ describe("GET /api/articles/:articleid", () => {
       .expect(404)
       .then(({body}) => {
         console.log(body)
-        expect(body.msg).toBe("Article not found!")
+        expect(body.msg).toBe("No article found at Article ID: 25!")
       });
   });
   test("400: responds with bad request (psql error) when article_id is not a number", () => {

@@ -5,7 +5,7 @@ exports.getAPI = (req, res) => {
     res.status(200).send({ endpoints : endpointsJson })
 };
 
-exports.getTopics = (req, res) => {
+exports.getTopics = (req, res, next) => {
     return selectTopics() 
     .then((topics) => {
         res.status(200).send({topics})
@@ -22,7 +22,7 @@ exports.getArticlesByID = (req, res, next) => {
     return selectArticlesByID(chosenArticle) 
     .then((article) => {
         if (article.length === 0) {
-            return Promise.reject( { status: 404, msg: "Article not found!"})
+            return Promise.reject( { status: 404, msg: `No article found at Article ID: ${chosenArticle}!`})
         } else {
             res.status(200).send({article})
         }
