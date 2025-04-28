@@ -1,0 +1,7 @@
+ slug  |          description           | img_url 
+-------+--------------------------------+---------
+ mitch | The man, the Mitch, the legend | 
+ cats  | Not dogs                       | 
+ paper | what books are made of         | 
+(3 rows)
+
