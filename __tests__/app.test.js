@@ -46,21 +46,21 @@ describe("GET /api/articles/:articleid", () => {
       .get("/api/articles/3")
       .expect(200)
       .then(({body}) => {
-        expect(Array.isArray(body.articles)).toBe(true)
-        expect(body.articles).toHaveLength(1)
-        expect(body.articles[0]).toBeInstanceOf(Object)
-        expect(body.articles[0]).toHaveProperty("author")
-        expect(body.articles[0]).toHaveProperty("title")
-        expect(body.articles[0]).toHaveProperty("article_id")
-        expect(body.articles[0]).toHaveProperty("body")
-        expect(body.articles[0]).toHaveProperty("topic")
-        expect(body.articles[0]).toHaveProperty("created_at")
-        expect(body.articles[0]).toHaveProperty("votes")
-        expect(body.articles[0]).toHaveProperty("article_img_url")
+        expect(Array.isArray(body.article)).toBe(true)
+        expect(body.article).toHaveLength(1)
+        expect(body.article[0]).toBeInstanceOf(Object)
+        expect(body.article[0]).toHaveProperty("author")
+        expect(body.article[0]).toHaveProperty("title")
+        expect(body.article[0]).toHaveProperty("article_id")
+        expect(body.article[0]).toHaveProperty("body")
+        expect(body.article[0]).toHaveProperty("topic")
+        expect(body.article[0]).toHaveProperty("created_at")
+        expect(body.article[0]).toHaveProperty("votes")
+        expect(body.article[0]).toHaveProperty("article_img_url")
       });
   });
 
-  test.only("200: Responds with an article object with properties of author, title, article_id, body, topic, created_at, votes, article_img_url", () => {
+  test("200: Responds with an article object with properties of author, title, article_id, body, topic, created_at, votes, article_img_url", () => {
     return request(app)
       .get("/api/articles/6")
       .expect(200)
@@ -80,4 +80,15 @@ describe("GET /api/articles/:articleid", () => {
         expect(body.article[0]).toHaveProperty("article_img_url")
       });
   })
+});
+
+describe("GET /api/invalidendpoint", () => {
+  test("404: Responds with an error message for all invalid endpoints", () => {
+    return request(app)
+      .get("/api/invalidendpoint")
+      .expect(404)
+      .then( ( {body} ) => {
+      expect(body.msg).toBe("Endpoint not found")
+      })
+  });
 });

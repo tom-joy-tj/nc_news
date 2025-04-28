@@ -9,4 +9,8 @@ app.get("/api/topics", getTopics);
 
 app.get("/api/articles/:article_id", getArticlesByID)
 
+app.all("/*splat", (req, res) => {
+    res.status(404).send({ msg: "Endpoint not found" });
+  });
+
 module.exports = app;
