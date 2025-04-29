@@ -6,16 +6,16 @@ exports.selectTopics = () => {
     .query("SELECT * FROM topics;")
     .then(({rows}) => {
         return rows;
-    })
-}
+    });
+};
 
 exports.selectArticlesByID = (chosenArticle) => {
     return db 
     .query(`SELECT author, title, article_id, body, topic, created_at, votes, article_img_url FROM articles where article_id = $1`, [chosenArticle])
     .then(( {rows} ) => {
         return rows;
-    })
-}
+    });
+};
 
 exports.selectArticles = () => {
     return db
@@ -38,5 +38,15 @@ ORDER BY
     a.created_at DESC`)
 .then( ( {rows} ) => {
     return rows;
-})
+});
+};
+
+exports.selectCommentsByArticle = (chosenArticle) => {
+
+    return db 
+    .query(`SELECT comment_id, votes, created_at, author, body, article_id FROM comments WHERE article_id = $1 ORDER BY created_at DESC`, [chosenArticle])
+    .then(({rows}) => {
+        console.log(rows, "THIS SHOULD BE A PSQL ERROR")
+        return rows;
+    })
 }

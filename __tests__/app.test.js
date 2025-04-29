@@ -146,5 +146,44 @@ describe("GET /api/articles", () => {
           expect(article.comment_count).toBeGreaterThanOrEqual(0)           
         })
       });
+  });
+});
+
+describe(" GET /api/articles/:article_id/comments ", () => {
+  test("200: should return an array of all comments (as objects) for a given article selected by that article's id. Each comment object should have property of comment_id, votes, created_at, author, body and article_id. Comments should be ordered in the array by most recent first.", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then( ( {body} ) => {
+        expect(Array.isArray(body.comments)).toBe(true)
+        expect(body.comments).toHaveLength(11)  // we know article 1 has 11 comments
+        expect(body.comments).toBeSortedBy("created_at", {descending: true})
+        body.comments.forEach((comment) => {
+          expect(comment).toHaveProperty("comment_id")
+          expect(comment).toHaveProperty("votes")
+          expect(comment).toHaveProperty("created_at")
+          expect(comment).toHaveProperty("author")
+          expect(comment).toHaveProperty("body")
+          expect(comment).toHaveProperty("article_id")
+          });      
+        });
+      });
+
+      test(" 404: should return an error message when passed an article_id which does not have any comments ", () => {
+        return request(app)
+          .get("/api/articles/4/comments") //we know article 4 does not have any comments 
+          .expect(404)
+          .then(( {body}) => {
+            expect(body.msg).toBe("No comments found for Article: 4, try writing one :)")
+          });
+      });
+
+      test(" 400: should return a psql error message when passed an article_id which is not valid ", () => {
+        return request(app)
+          .get("/api/articles/chicken/comments") 
+          .expect(400)
+          .then(( {body}) => {
+            expect(body.msg).toBe("BAD REQUEST - PSQL ERROR!")
+          });
   })
 })
