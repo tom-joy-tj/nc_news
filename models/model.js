@@ -42,10 +42,9 @@ ORDER BY
 };
 
 exports.selectCommentsByArticle = (chosenArticle) => {
-
     return db 
     .query(`SELECT comment_id, votes, created_at, author, body, article_id FROM comments WHERE article_id = $1 ORDER BY created_at DESC`, [chosenArticle])
-    .then(({rows}) => {
+    .then(( {rows} ) => {
         return rows;
     })
 };
@@ -62,3 +61,16 @@ exports.insertCommentByArticle = (chosenArticle, userName, newComment) => {
         return(postedComment.rows)
     })
 }
+
+exports.updateArticlesByID = (chosenArticle, incVotes) => {
+
+    const queryStr = `UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING article_id, title, votes, author, body, topic, created_at`;
+
+    const queryValues = [incVotes, chosenArticle]
+
+    return db 
+    .query(queryStr, queryValues)
+    .then(( {rows} ) => {
+        return rows[0];
+    });
+};

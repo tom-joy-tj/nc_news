@@ -1,4 +1,4 @@
-const { selectTopics, selectArticlesByID, selectArticles, selectCommentsByArticle, insertCommentByArticle } = require("../models/model.js");
+const { selectTopics, selectArticlesByID, selectArticles, selectCommentsByArticle, insertCommentByArticle, updateArticlesByID } = require("../models/model.js");
 const endpointsJson = require("../endpoints.json");
 
 exports.getAPI = (req, res) => {
@@ -37,7 +37,7 @@ exports.getArticles = (req, res, next) => {
     return selectArticles()
     .then((articles) => {
         if(articles.length === 0) {
-            return Promise.reject( { status: 404, msg: "No articles found" } )
+            res.status(200).send( { msg: "No articles found - run seed and try again" } )
         }
         else {
             res.status(200).send( { articles } )
@@ -52,18 +52,26 @@ exports.getCommentsByArticle = (req, res, next) => {
     
     let chosenArticle = req.params.article_id;
 
-    return selectCommentsByArticle(chosenArticle)
-    .then((comments) => {
-        if(comments.length === 0) {
-            return Promise.reject( { status: 404, msg: `No comments found for Article: ${chosenArticle}, try writing one :)` } )
+    //first confirm chosenArticle exists by using 1st model 
+    selectArticlesByID(chosenArticle)
+    .then((article) => {
+        if (article.length === 0) {
+            return Promise.reject( { status: 404, msg: `Cannot find Article: ${chosenArticle}!` } )
         }
-        else {
-            res.status(200).send ( { comments } )
-        }
+        //else if it does exist then invoke next model to select the comments
+        return selectCommentsByArticle(chosenArticle)
     })
-    .catch((err) => {
-        next(err);
-    });
+        .then((comments) => {
+            if(comments.length === 0) {
+            res.status(200).send( { msg: `Article ID ${chosenArticle} has no comments!` } )
+            }
+            else {
+            res.status(200).send ( { comments } )
+            }
+        })
+        .catch((err) => {
+            next(err)
+        });
 };
 
 exports.postCommentByArticle = (req, res, next) => {
@@ -81,11 +89,28 @@ exports.postCommentByArticle = (req, res, next) => {
     }
     insertCommentByArticle(chosenArticle, userName, newComment)
     .then((postedComment) => {
-        console.log(postedComment, "THIS IS WHAT THE MODEL SENDS BACK")
         if (postedComment.length === 0) {
             return Promise.reject( { status: 404, msg: "Article not found!" } )
         }
         res.status(201).send( { comment : postedComment[0].body } )
+    })
+    .catch((err) => {
+        next(err)
+    });
+};
+
+exports.patchArticlesByID = (req, res, next) => {
+
+    let chosenArticle = req.params.article_id
+    let updateVotes = req.body.inc_votes
+
+    if (!chosenArticle || !updateVotes) {
+        return res.status(400).send( { msg: "Must include a valid article_ID and valid number to add"})
+    }
+    
+    updateArticlesByID(chosenArticle, updateVotes)
+    .then((updatedArticle) => {
+        res.status(200).send( { article: updatedArticle } )
     })
     .catch((err) => {
         next(err)

@@ -107,10 +107,10 @@ describe("GET /api/articles/:articleid", () => {
   });
   test("404: responds with not found when valid request but article id does not exist in the table", () => {
     return request(app)
-      .get("/api/articles/25")
+      .get("/api/articles/25")  //we know article 25 is valid but does not exist
       .expect(404)
       .then(({body}) => {
-        expect(body.msg).toBe("Article ID not found!")
+        expect(body.msg).toBe("No article found at Article ID: 25!")
       });
   });
   test("400: responds with bad request (psql error) when article_id is not a number", () => {
@@ -148,14 +148,14 @@ describe("GET /api/articles", () => {
   });
 });
 
-describe(" GET /api/articles/:article_id/comments ", () => {
+describe("GET /api/articles/:article_id/comments ", () => {
   test("200: should return an array of all comments (as objects) for a given article selected by that article's id. Each comment object should have property of comment_id, votes, created_at, author, body and article_id. Comments should be ordered in the array by most recent first.", () => {
     return request(app)
-      .get("/api/articles/1/comments")
+      .get("/api/articles/1/comments")   //we know article 1 has 11 comments
       .expect(200)
       .then( ( {body} ) => {
         expect(Array.isArray(body.comments)).toBe(true)
-        expect(body.comments).toHaveLength(11)  // we know article 1 has 11 comments
+        expect(body.comments).toHaveLength(11)  
         expect(body.comments).toBeSortedBy("created_at", {descending: true})
         body.comments.forEach((comment) => {
           expect(comment).toHaveProperty("comment_id")
@@ -168,18 +168,27 @@ describe(" GET /api/articles/:article_id/comments ", () => {
         });
       });
 
-      test(" 404: should return an error message when passed an article_id which does not have any comments ", () => {
+  test("200: should return 200 when passed an article_id which exists but does not have any comments ", () => {
+      return request(app)
+        .get("/api/articles/4/comments") //we know article 4 exists but does not have any comments 
+        .expect(200)
+        .then(( {body}) => {
+          expect(body.msg).toBe("Article ID 4 has no comments!")
+      });
+  });
+
+  test("404: should return an error message when passed a valid article_id which does not exist", () => {
         return request(app)
-          .get("/api/articles/4/comments") //we know article 4 does not have any comments 
+          .get("/api/articles/9999/comments") //we know article 9999 is valid but does not exist
           .expect(404)
           .then(( {body}) => {
-            expect(body.msg).toBe("Article ID not found!")
+            expect(body.msg).toBe("Cannot find Article: 9999!")
           });
       });
 
-      test(" 400: should return a psql error message when passed an article_id which is not valid ", () => {
+  test("400: should return a psql error message when passed an article_id which is not valid ", () => {
         return request(app)
-          .get("/api/articles/chicken/comments") 
+          .get("/api/articles/chicken/comments") //we know this is not a valid article_id
           .expect(400)
           .then(( {body}) => {
             expect(body.msg).toBe("BAD REQUEST - PSQL ERROR!")
@@ -187,7 +196,7 @@ describe(" GET /api/articles/:article_id/comments ", () => {
     });
 });
 
-describe(" POST /api/articles/:article_id/comments ", () => {
+describe("POST /api/articles/:article_id/comments ", () => {
   test("201: Responds with the posted comment when posting comment to an article selected by an article_id", () => {
     return request(app)
       .post("/api/articles/2/comments") //we know this article_id does not have any comments yet 
@@ -208,7 +217,7 @@ describe(" POST /api/articles/:article_id/comments ", () => {
       })
   });
 
-  test("400: Responds with msg of missing information when either username or body are empty", () => {
+  test("400: Responds with msg of missing information when username is missing", () => {
     return request(app)
       .post("/api/articles/2/comments") 
       .send({username: "", body: "THIS IS A TEST COMMENT!"})
@@ -218,7 +227,7 @@ describe(" POST /api/articles/:article_id/comments ", () => {
       })
   });
 
-  test("400: Responds with msg of missing information when either username or body are empty", () => {
+  test("400: Responds with msg of missing information when body is missing", () => {
     return request(app)
       .post("/api/articles/2/comments")  
       .send({username: "butter_bridge", body: ""})
@@ -228,13 +237,65 @@ describe(" POST /api/articles/:article_id/comments ", () => {
       })
   });
 
-  test("404: Responds with 404 when attempting to send valid post to non existent article_id", () => {
+  test("404: Responds with msg when attempting to post comment to an article_id which does not exist", () => {
     return request(app)
       .post("/api/articles/99999/comments") //we know this article_id does not exist
       .send({username: "butter_bridge", body: "THIS IS A TEST COMMENT!"})
       .expect(404)
       .then( ( {body} ) => {
-      expect(body.msg).toBe("Article ID not found!")
+      expect(body.msg).toBe("Article ID not found!") //THIS COMES FROM THE GLOBAL PSQL ERR HANDLER AS ITS A 23503 ERROR 
       })
   });
 });
+
+describe("PATCH /api/articles/:article_id", () => {
+  test("200: successfully adds votes when newVote is a positive integer", () => {
+    return request(app)
+    .patch("/api/articles/1") //article_id 1 has 100 votes to start off with 
+    .send( { inc_votes: 10 } )
+    .expect(200)
+    .then(( { body } ) => {
+      console.log(body)
+      expect(body.article.votes).toBe(110) //10 votes should have been added on 
+    })
+  });  
+
+  test("200: successfully reduces votes when newVote is a negative integer", () => {
+    return request(app)
+    .patch("/api/articles/1") //article_id 1 has 100 votes to start off with 
+    .send( { inc_votes: -10 } )
+    .expect(200)
+    .then(( { body } ) => {
+      expect(body.article.votes).toBe(90) //10 votes should have been taken away
+    })
+  }); 
+
+  test("400: responds with error message when inc_votes is missing but article_id is valid", () => {
+    return request(app)
+    .patch("/api/articles/1") //article_id 1 is valid 
+    .send( { } ) // inc_votes is missing 
+    .expect(400)
+    .then(( { body } ) => {
+      expect(body.msg).toBe("Must include a valid article_ID and valid number to add")
+    })
+  }); 
+
+  test("400: responds with psql error message when inc_votes is valid but article_id is invalid", () => {
+    return request(app)
+    .patch("/api/articles/chicken") //not a valid article_id
+    .send( { inc_votes: 10 } ) // valid inc_votes
+    .expect(400)
+    .then(( { body } ) => {
+      expect(body.msg).toBe("BAD REQUEST - PSQL ERROR!") //PSQL error from global err handler 
+    })
+  }); 
+}); // block end 
+
+
+// Request body accepts:
+// an object in the form { inc_votes: newVote }.
+// newVote will indicate how much the votes property in the database should be updated by, e.g.
+// { inc_votes : 1 } would increment the current article's vote property by 1
+// { inc_votes : -100 } would decrement the current article's vote property by 100
+// Responds with:
+// the updated article
