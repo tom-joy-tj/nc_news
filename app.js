@@ -1,7 +1,7 @@
 const express = require("express"); 
 const app = express(); 
 
-const { getAPI, getTopics, getArticlesByID } = require("./controllers/endpoint.controller.js");
+const { getAPI, getTopics, getArticlesByID, getArticles } = require("./controllers/endpoint.controller.js");
 
 const { handlePsqlError, handleCustomError, handle500Error } = require("./controllers/error.controller.js");
 
@@ -11,9 +11,9 @@ app.get("/api", getAPI);
 
 app.get("/api/topics", getTopics);
 
-app.get("/api/articles/:article_id", getArticlesByID)
+app.get("/api/articles/:article_id", getArticlesByID);
 
-
+app.get("/api/articles", getArticles);
 
 
 app.all("/*splat", (req, res) => {

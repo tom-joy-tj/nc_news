@@ -1,4 +1,4 @@
-const { selectTopics, selectArticlesByID } = require("../models/model.js");
+const { selectTopics, selectArticlesByID, selectArticles } = require("../models/model.js");
 const endpointsJson = require("../endpoints.json");
 
 exports.getAPI = (req, res) => {
@@ -23,7 +23,8 @@ exports.getArticlesByID = (req, res, next) => {
     .then((article) => {
         if (article.length === 0) {
             return Promise.reject( { status: 404, msg: `No article found at Article ID: ${chosenArticle}!`})
-        } else {
+        } 
+        else {
             res.status(200).send({article})
         }
     })
@@ -32,5 +33,19 @@ exports.getArticlesByID = (req, res, next) => {
     });
 };
 
+exports.getArticles = (req, res, next) => {
+    return selectArticles()
+    .then((articles) => {
+        if(articles.length === 0) {
+            return Promise.reject( { status: 404, msg: "No articles found"})
+        }
+        else {
+            res.status(200).send( {articles} )
+        }
+    })
+    .catch((err) => {
+        next(err);
+    })
+}
 
 
