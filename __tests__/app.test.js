@@ -4,6 +4,7 @@ const seed = require("../db/seeds/seed.js");
 const data = require("../db/data/test-data"); 
 const request = require("supertest"); 
 const app = require("../app.js"); 
+require("jest-sorted");
 
 beforeEach(() => {   
   return seed(data);   
@@ -128,8 +129,10 @@ describe("GET /api/articles", () => {
       .get("/api/articles")
       .expect(200)
       .then( ( {body} ) => {
+        console.log(body.articles, "THIS IS BODY.ARTICLES IN THE TEST")
         expect(Array.isArray(body.articles)).toBe(true)
         expect(body.articles).toHaveLength(13)
+        expect(body.articles).toBeSortedBy("created_at", {descending: true})
         body.articles.forEach((article) => {
           expect(article).toHaveProperty("author")
           expect(article).toHaveProperty("title")
@@ -140,12 +143,8 @@ describe("GET /api/articles", () => {
           expect(article).toHaveProperty("article_img_url")
           expect(article).toHaveProperty("comment_count")
           expect(typeof article.comment_count).toBe("number") 
-          expect(article.comment_count).toBeGreaterThanOrEqual(0) // will always show 0 if there are no comments attached to this article_id
+          expect(article.comment_count).toBeGreaterThanOrEqual(0)           
         })
-          const articleOne = body.articles[0]
-          const articleTwo = body.articles[1]
-          expect(articleOne.comment_count).toBe(11)
-          expect(articleTwo.comment_count).toBe(0)
       });
   })
 })

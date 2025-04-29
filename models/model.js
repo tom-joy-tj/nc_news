@@ -35,7 +35,7 @@ LEFT JOIN
 GROUP BY 
     a.article_id
 ORDER BY 
-    a.article_id`)
+    a.created_at DESC`)
 .then( ( {rows} ) => {
     return rows;
 })
