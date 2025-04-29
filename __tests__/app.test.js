@@ -110,7 +110,7 @@ describe("GET /api/articles/:articleid", () => {
       .get("/api/articles/25")
       .expect(404)
       .then(({body}) => {
-        expect(body.msg).toBe("No article found at Article ID: 25!")
+        expect(body.msg).toBe("Article ID not found!")
       });
   });
   test("400: responds with bad request (psql error) when article_id is not a number", () => {
@@ -129,7 +129,6 @@ describe("GET /api/articles", () => {
       .get("/api/articles")
       .expect(200)
       .then( ( {body} ) => {
-        console.log(body.articles, "THIS IS BODY.ARTICLES IN THE TEST")
         expect(Array.isArray(body.articles)).toBe(true)
         expect(body.articles).toHaveLength(13)
         expect(body.articles).toBeSortedBy("created_at", {descending: true})
@@ -174,7 +173,7 @@ describe(" GET /api/articles/:article_id/comments ", () => {
           .get("/api/articles/4/comments") //we know article 4 does not have any comments 
           .expect(404)
           .then(( {body}) => {
-            expect(body.msg).toBe("No comments found for Article: 4, try writing one :)")
+            expect(body.msg).toBe("Article ID not found!")
           });
       });
 
@@ -185,5 +184,57 @@ describe(" GET /api/articles/:article_id/comments ", () => {
           .then(( {body}) => {
             expect(body.msg).toBe("BAD REQUEST - PSQL ERROR!")
           });
-  })
-})
+    });
+});
+
+describe(" POST /api/articles/:article_id/comments ", () => {
+  test("201: Responds with the posted comment when posting comment to an article selected by an article_id", () => {
+    return request(app)
+      .post("/api/articles/2/comments") //we know this article_id does not have any comments yet 
+      .send({username: "butter_bridge", body: "THIS IS A TEST COMMENT!"})
+      .expect(201)
+      .then( ( {body} ) => {
+      expect(body.comment).toBe("THIS IS A TEST COMMENT!")
+      })
+  });
+
+  test("400: Responds with username not valid when posting with username which does not exist in users", () => {
+    return request(app)
+      .post("/api/articles/2/comments") 
+      .send({username: "tom-joy", body: "THIS IS A TEST COMMENT!"})
+      .expect(400)
+      .then( ( {body} ) => {
+      expect(body.msg).toBe("Not a valid username!")
+      })
+  });
+
+  test("400: Responds with msg of missing information when either username or body are empty", () => {
+    return request(app)
+      .post("/api/articles/2/comments") 
+      .send({username: "", body: "THIS IS A TEST COMMENT!"})
+      .expect(400)
+      .then( ( {body} ) => {
+      expect(body.msg).toBe("Missing username or comment to post!")
+      })
+  });
+
+  test("400: Responds with msg of missing information when either username or body are empty", () => {
+    return request(app)
+      .post("/api/articles/2/comments")  
+      .send({username: "butter_bridge", body: ""})
+      .expect(400)
+      .then( ( {body} ) => {
+      expect(body.msg).toBe("Missing username or comment to post!")
+      })
+  });
+
+  test("404: Responds with 404 when attempting to send valid post to non existent article_id", () => {
+    return request(app)
+      .post("/api/articles/99999/comments") //we know this article_id does not exist
+      .send({username: "butter_bridge", body: "THIS IS A TEST COMMENT!"})
+      .expect(404)
+      .then( ( {body} ) => {
+      expect(body.msg).toBe("Article ID not found!")
+      })
+  });
+});

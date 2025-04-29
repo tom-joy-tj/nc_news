@@ -46,7 +46,19 @@ exports.selectCommentsByArticle = (chosenArticle) => {
     return db 
     .query(`SELECT comment_id, votes, created_at, author, body, article_id FROM comments WHERE article_id = $1 ORDER BY created_at DESC`, [chosenArticle])
     .then(({rows}) => {
-        console.log(rows, "THIS SHOULD BE A PSQL ERROR")
         return rows;
+    })
+};
+
+exports.insertCommentByArticle = (chosenArticle, userName, newComment) => {
+
+    const values = [newComment, userName, chosenArticle]
+
+    const queryStr = `INSERT INTO comments (body, author, article_id) VALUES ($1, $2, $3) RETURNING comment_id, body, author, article_id, votes, created_at;`
+
+    return db 
+    .query(queryStr, values)
+    .then((postedComment) => {
+        return(postedComment.rows)
     })
 }

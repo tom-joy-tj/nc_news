@@ -1,4 +1,4 @@
-const { selectTopics, selectArticlesByID, selectArticles, selectCommentsByArticle } = require("../models/model.js");
+const { selectTopics, selectArticlesByID, selectArticles, selectCommentsByArticle, insertCommentByArticle } = require("../models/model.js");
 const endpointsJson = require("../endpoints.json");
 
 exports.getAPI = (req, res) => {
@@ -63,5 +63,31 @@ exports.getCommentsByArticle = (req, res, next) => {
     })
     .catch((err) => {
         next(err);
+    });
+};
+
+exports.postCommentByArticle = (req, res, next) => {
+
+    let chosenArticle = req.params.article_id;
+    let userName = req.body.username;
+    let newComment = req.body.body;
+    let validUsers = ["butter_bridge", "icellusedkars", "rogersop", "lurker"]
+
+    if(!userName || !newComment) {
+        return res.status(400).send( { msg: "Missing username or comment to post!" } )
+    }
+    if (!validUsers.includes(userName)) {
+        return res.status(400).send( { msg: "Not a valid username!" } )
+    }
+    insertCommentByArticle(chosenArticle, userName, newComment)
+    .then((postedComment) => {
+        console.log(postedComment, "THIS IS WHAT THE MODEL SENDS BACK")
+        if (postedComment.length === 0) {
+            return Promise.reject( { status: 404, msg: "Article not found!" } )
+        }
+        res.status(201).send( { comment : postedComment[0].body } )
+    })
+    .catch((err) => {
+        next(err)
     });
 };
