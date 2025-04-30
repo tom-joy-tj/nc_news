@@ -17,7 +17,7 @@ exports.getTopics = (req, res, next) => {
 
 exports.getArticlesByID = (req, res, next) => {
 
-    let chosenArticle = req.params.article_id;
+    const chosenArticle = req.params.article_id;
 
     return selectArticlesByID(chosenArticle) 
     .then((article) => {
@@ -50,15 +50,13 @@ exports.getArticles = (req, res, next) => {
 
 exports.getCommentsByArticle = (req, res, next) => {
     
-    let chosenArticle = req.params.article_id;
+    const chosenArticle = req.params.article_id;
 
-    //first confirm chosenArticle exists by using 1st model 
     selectArticlesByID(chosenArticle)
     .then((article) => {
         if (article.length === 0) {
             return Promise.reject( { status: 404, msg: `Cannot find Article: ${chosenArticle}!` } )
         }
-        //else if it does exist then invoke next model to select the comments
         return selectCommentsByArticle(chosenArticle)
     })
         .then((comments) => {
@@ -76,10 +74,10 @@ exports.getCommentsByArticle = (req, res, next) => {
 
 exports.postCommentByArticle = (req, res, next) => {
 
-    let chosenArticle = req.params.article_id;
-    let userName = req.body.username;
-    let newComment = req.body.body;
-    let validUsers = ["butter_bridge", "icellusedkars", "rogersop", "lurker"]
+    const chosenArticle = req.params.article_id;
+    const userName = req.body.username;
+    const newComment = req.body.body;
+    const validUsers = ["butter_bridge", "icellusedkars", "rogersop", "lurker"]
 
     if(!userName || !newComment) {
         return res.status(400).send( { msg: "Missing username or comment to post!" } )
@@ -101,8 +99,8 @@ exports.postCommentByArticle = (req, res, next) => {
 
 exports.patchArticlesByID = (req, res, next) => {
 
-    let chosenArticle = req.params.article_id
-    let updateVotes = req.body.inc_votes
+    const chosenArticle = req.params.article_id
+    const updateVotes = req.body.inc_votes
 
     if (!chosenArticle || !updateVotes) {
         return res.status(400).send( { msg: "Must include a valid article_ID and valid number to add"})
@@ -119,7 +117,7 @@ exports.patchArticlesByID = (req, res, next) => {
 
 exports.removeCommentByID = (req, res, next) => {
 
-    let chosenComment = req.params.comment_id
+    const chosenComment = req.params.comment_id
 
     deleteCommentByID(chosenComment)
     .then(( rowCount ) => {
