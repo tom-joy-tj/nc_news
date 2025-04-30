@@ -289,7 +289,7 @@ describe("PATCH /api/articles/:article_id", () => {
     })
   }); 
 
-  test.only("400: responds with psql error message when article_id is valid but inc_votes is NOT A NUMBER", () => {
+  test("400: responds with psql error message when article_id is valid but inc_votes is NOT A NUMBER", () => {
     return request(app)
     .patch("/api/articles/1") //valid article_id
     .send( { inc_votes: "Not_a_Number" } ) // NOT A NUMBER
@@ -329,6 +329,7 @@ describe("DELETE /api/comments/:comment_id", () => {
   });
 });
 
+describe("GET /api/users", () => {
 describe("GET /api/users", () => {
   test("200: Returns an array of user objects. Each user object should contain username, name, avatar_url properties", () => {
     return request(app)
