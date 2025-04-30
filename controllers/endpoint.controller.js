@@ -1,4 +1,4 @@
-const { selectTopics, selectArticlesByID, selectArticles, selectCommentsByArticle, insertCommentByArticle, updateArticlesByID } = require("../models/model.js");
+const { selectTopics, selectArticlesByID, selectArticles, selectCommentsByArticle, insertCommentByArticle, updateArticlesByID, deleteCommentByID } = require("../models/model.js");
 const endpointsJson = require("../endpoints.json");
 
 exports.getAPI = (req, res) => {
@@ -111,6 +111,28 @@ exports.patchArticlesByID = (req, res, next) => {
     updateArticlesByID(chosenArticle, updateVotes)
     .then((updatedArticle) => {
         res.status(200).send( { article: updatedArticle } )
+    })
+    .catch((err) => {
+        next(err)
+    });
+};
+
+exports.removeCommentByID = (req, res, next) => {
+
+    let chosenComment = req.params.comment_id
+
+    deleteCommentByID(chosenComment)
+    .then(( rowCount ) => {
+
+        if (rowCount === 0) {
+            return Promise.reject( { status: 404, msg: `Comment ${chosenComment} did not exist or was already deleted!`} )
+        }
+        else if (rowCount === 1) {
+            res.status(204).send() //nothing to send only the status
+        }
+        else { 
+            return Promise.reject( { status: 500, msg: "Unexpected error!" } )
+        };
     })
     .catch((err) => {
         next(err)

@@ -290,3 +290,31 @@ describe("PATCH /api/articles/:article_id", () => {
   }); 
 }); 
 
+describe("DELETE /api/comments/:comment_id", () => {
+  test("204: Deletes comment by comment_id. Then returns 204 status and NO CONTENT", () => {
+    return request(app)
+    .delete("/api/comments/16")  // COMMENT_ID 16 is the ONLY comment on article 6 
+    .expect(204)
+    .then(( { body } ) => {
+      expect(body).toEqual({})
+    });
+  });
+
+  test("404: Try to delete a comment which does not exist returns appropriate error message", () => {
+    return request(app)
+    .delete("/api/comments/19") // This comment_id does not exist
+    .expect(404)
+    .then(( { body } ) => {
+      expect(body.msg).toBe("Comment 19 did not exist or was already deleted!")
+    });
+  });
+
+  test("400: Invalid comment_id should cause PSQL error - bad request ", () => {
+    return request(app)
+    .delete("/api/comments/chicken") // This is an invalid comment_id
+    .expect(400)
+    .then(( { body } ) => {
+      expect(body.msg).toBe("BAD REQUEST - PSQL ERROR!")
+    });
+  });
+});
