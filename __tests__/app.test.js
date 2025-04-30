@@ -330,7 +330,6 @@ describe("DELETE /api/comments/:comment_id", () => {
 });
 
 describe("GET /api/users", () => {
-describe("GET /api/users", () => {
   test("200: Returns an array of user objects. Each user object should contain username, name, avatar_url properties", () => {
     return request(app)
     .get("/api/users")
@@ -346,3 +345,4 @@ describe("GET /api/users", () => {
     });
   }); 
 });
+
