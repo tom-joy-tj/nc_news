@@ -128,7 +128,7 @@ describe("GET /api/articles", () => {
     return request(app)
       .get("/api/articles")
       .expect(200)
-      .then( ( {body} ) => {
+      .then(( {body} ) => {
         expect(Array.isArray(body.articles)).toBe(true)
         expect(body.articles).toHaveLength(13)
         expect(body.articles).toBeSortedBy("created_at", {descending: true})
@@ -346,3 +346,84 @@ describe("GET /api/users", () => {
   }); 
 });
 
+describe("GET /api/articles? - This endpoint now accepts queries of sort_by any column (default to sort_by created_at) and order by ASC or DESC (defaults to DESC)", () => {
+  test("200: When queried WITHOUT SPECIFIC order_by and sort returns articles sorted by default of created_at and default order DESC", () => {
+    return request(app)
+    .get("/api/articles?") // Queries to the default sort and order 
+    .expect(200)
+    .then(( { body } ) => {
+      expect(Array.isArray(body.articles)).toBe(true)
+      expect(body.articles).toHaveLength(13) 
+      expect(body.articles).toBeSortedBy("created_at", {descending: true }) 
+    })
+  })
+
+  test("200: When queried with ORDER ASC but no particular sortby_by should return articles sorted by default of created_at and order ASC", () => {
+    return request(app)
+    .get("/api/articles?order=ASC") // Query sorted by default but re-ordered to ASC
+    .expect(200)
+    .then(( { body } ) => {
+      expect(Array.isArray(body.articles)).toBe(true)
+      expect(body.articles).toHaveLength(13) 
+      expect(body.articles).toBeSortedBy("created_at", {descending: false }) 
+    })
+  })
+
+  test("200: As above - test specifically that it handles lowercase order query and still behaves as expected ", () => {
+    return request(app)
+    .get("/api/articles?order=asc") // exactly as above but now passed as lowercase
+    .expect(200)
+    .then(( { body } ) => {
+      expect(Array.isArray(body.articles)).toBe(true)
+      expect(body.articles).toHaveLength(13) 
+      expect(body.articles).toBeSortedBy("created_at", {descending: false }) 
+    })
+  })
+
+  test("200: When queried with a new sort_by should now return all articles sorted by this new column. Default order of DESC", () => {
+    return request(app)
+    .get("/api/articles?sort_by=title") // now sorted by title, default DESC
+    .expect(200)
+    .then(( { body } ) => {
+      expect(Array.isArray(body.articles)).toBe(true)
+      expect(body.articles).toHaveLength(13) //will return all articles in an array
+      expect(body.articles).toBeSortedBy("title", {descending: true }) 
+    })
+  })
+
+  test("200: When queried with new sort_by AND new Order should return articles sorted and ordered to match", () => {
+    return request(app)
+    .get("/api/articles?sort_by=title&order=asc") // now sorted by title, and ordered ASC
+    .expect(200)
+    .then(( { body } ) => {
+      expect(Array.isArray(body.articles)).toBe(true)
+      expect(body.articles).toHaveLength(13) //will return all articles in an array
+      expect(body.articles).toBeSortedBy("title", {descending: false }) 
+    })
+  })
+
+  test("200: When queried with an invalid greenlist sort_by should STILL return the articles array sorted by default created_at. Default order of DESC", () => {
+    return request(app)
+    .get("/api/articles?sort_by=tttiiittttlllllleeeeee") // invalid sort_by will fail greenlist check 
+    .expect(200)
+    .then(( { body } ) => {
+      expect(Array.isArray(body.articles)).toBe(true)
+      expect(body.articles).toHaveLength(13) //will return all articles in an array
+      expect(body.articles).toBeSortedBy("created_at", {descending: true }) 
+    })
+  })
+
+  test("200: When queried with an valid greenlist sort_by but INVALID order should STILL return the articles array sorted by the given coumn defaulted to DESC", () => {
+    return request(app)
+    .get("/api/articles?sort_by=title&&order=chicken") // valid sort_by but INVALID order
+    .expect(200)
+    .then(( { body } ) => {
+      expect(Array.isArray(body.articles)).toBe(true)
+      expect(body.articles).toHaveLength(13) //will return all articles in an array
+      expect(body.articles).toBeSortedBy("title", {descending: true }) 
+    })
+  })
+
+  //cannot see a way to return a 400 Bad Request from this as the controller filters all non valid sort and order queries and will always return a 200 with default articles array. 
+
+})

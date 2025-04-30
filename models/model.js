@@ -17,7 +17,7 @@ exports.selectArticlesByID = (chosenArticle) => {
     });
 };
 
-exports.selectArticles = () => {
+exports.selectArticles = (sortByQuery, orderQuery) => {
     return db
     .query(`SELECT 
     a.author,
@@ -35,7 +35,7 @@ LEFT JOIN
 GROUP BY 
     a.article_id
 ORDER BY 
-    a.created_at DESC`)
+    a.${sortByQuery} ${orderQuery}`)
 .then( ( {rows} ) => {
     return rows;
 });

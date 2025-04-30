@@ -34,7 +34,21 @@ exports.getArticlesByID = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-    return selectArticles()
+
+    const validQueries = ["article_id", "title", "topic", "author", "created_at", "body", "votes", "article_img_url"] //greenlist
+    const validOrders = ["ASC", "DESC"]
+
+    let sortByQuery = "created_at" //this is the default sort
+    let orderQuery = "DESC"  //this is the default order of the sort
+
+    if (req.query.sort_by && validQueries.includes(req.query.sort_by)) {
+        sortByQuery = req.query.sort_by
+    }
+    if (req.query.order && validOrders.includes(req.query.order.toUpperCase())) {
+        orderQuery = req.query.order.toUpperCase()
+    }
+
+    return selectArticles(sortByQuery, orderQuery)
     .then((articles) => {
         if(articles.length === 0) {
             res.status(200).send( { msg: "No articles found - run seed and try again" } )
@@ -126,7 +140,7 @@ exports.removeCommentByID = (req, res, next) => {
             return Promise.reject( { status: 404, msg: `Comment ${chosenComment} did not exist or was already deleted!`} )
         }
         else if (rowCount === 1) {
-            res.status(204).send() //nothing to send only the status
+            res.status(204).send()
         }
         else { 
             return Promise.reject( { status: 500, msg: "Unexpected error!" } )
