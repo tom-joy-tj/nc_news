@@ -1,7 +1,7 @@
 const express = require("express"); 
 const app = express(); 
 
-const { getAPI, getTopics, getArticlesByID, getArticles, getCommentsByArticle, postCommentByArticle, patchArticlesByID } = require("./controllers/endpoint.controller.js");
+const { getAPI, getTopics, getArticlesByID, getArticles, getCommentsByArticle, postCommentByArticle, patchArticlesByID, removeCommentByID } = require("./controllers/endpoint.controller.js");
 
 const { handlePsqlError, handleCustomError, handle500Error } = require("./controllers/error.controller.js");
 
@@ -20,6 +20,8 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticle);
 app.post("/api/articles/:article_id/comments", postCommentByArticle);
 
 app.patch("/api/articles/:article_id", patchArticlesByID)
+
+app.delete("/api/comments/:comment_id", removeCommentByID)
 
 app.all("/*splat", (req, res) => {
     res.status(404).send({ msg: "Endpoint not found!" });
