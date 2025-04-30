@@ -318,3 +318,20 @@ describe("DELETE /api/comments/:comment_id", () => {
     });
   });
 });
+
+describe.only("GET /api/users", () => {
+  test("200: Returns an array of user objects. Each user object should contain username, name, avatar_url properties", () => {
+    return request(app)
+    .get("/api/users")
+    .expect(200)
+    .then(( { body } ) => {
+      expect(Array.isArray(body.users)).toBe(true)
+      expect(body.users.length).toBe(4)
+      body.users.forEach((user) => {
+        expect(user).toHaveProperty("username")
+        expect(user).toHaveProperty("name")
+        expect(user).toHaveProperty("avatar_url")
+      });
+    });
+  }); 
+});

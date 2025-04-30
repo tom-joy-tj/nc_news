@@ -83,3 +83,11 @@ exports.deleteCommentByID = (chosenComment) => {
         return result.rowCount;
     });
 };
+
+exports.selectUsers = () => {
+    return db 
+    .query("SELECT * FROM users;")
+    .then(( {rows} ) => {
+        return rows;
+    });
+};

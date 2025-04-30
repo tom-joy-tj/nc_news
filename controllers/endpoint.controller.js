@@ -1,4 +1,4 @@
-const { selectTopics, selectArticlesByID, selectArticles, selectCommentsByArticle, insertCommentByArticle, updateArticlesByID, deleteCommentByID } = require("../models/model.js");
+const { selectTopics, selectArticlesByID, selectArticles, selectCommentsByArticle, insertCommentByArticle, updateArticlesByID, deleteCommentByID, selectUsers } = require("../models/model.js");
 const endpointsJson = require("../endpoints.json");
 
 exports.getAPI = (req, res) => {
@@ -136,5 +136,20 @@ exports.removeCommentByID = (req, res, next) => {
     })
     .catch((err) => {
         next(err)
+    });
+};
+
+exports.getUsers = (req, res, next) => {
+    return selectUsers()
+    .then((users) => {
+        if (users.length === 0) {
+            res.status(200).send( { msg: "No users found - run seed and try again!" } )
+        }
+        else { 
+            res.status(200).send( { users } )
+        }
+    })
+    .catch((err) => {
+        next(err);
     });
 };
