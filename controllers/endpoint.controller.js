@@ -85,7 +85,7 @@ exports.postCommentByArticle = (req, res, next) => {
         return res.status(400).send( { msg: "Missing username or comment to post!" } )
     }
     if (!validUsers.includes(userName)) {
-        return res.status(400).send( { msg: "Not a valid username!" } )
+        return res.status(400).send( { msg: "Username invalid! Check you have entered username correctly or create new user account" } )
     }
     insertCommentByArticle(chosenArticle, userName, newComment)
     .then((postedComment) => {

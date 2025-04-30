@@ -168,7 +168,7 @@ describe("GET /api/articles/:article_id/comments ", () => {
         });
       });
 
-  test("200: should return 200 when passed an article_id which exists but does not have any comments ", () => {
+  test("200: should return 200 when passed an article_id which exists but does not have any comments", () => {
       return request(app)
         .get("/api/articles/4/comments") //we know article 4 exists but does not have any comments 
         .expect(200)
@@ -203,24 +203,24 @@ describe("POST /api/articles/:article_id/comments ", () => {
       .send({username: "butter_bridge", body: "THIS IS A TEST COMMENT!"})
       .expect(201)
       .then( ( {body} ) => {
-      expect(body.comment).toBe("THIS IS A TEST COMMENT!")
+        expect(body).toEqual( { comment: 'THIS IS A TEST COMMENT!' } )
       })
   });
 
   test("400: Responds with username not valid when posting with username which does not exist in users", () => {
     return request(app)
       .post("/api/articles/2/comments") 
-      .send({username: "tom-joy", body: "THIS IS A TEST COMMENT!"})
+      .send({username: "tom-joy", body: "THIS IS A TEST COMMENT!"})   //invalid username 
       .expect(400)
       .then( ( {body} ) => {
-      expect(body.msg).toBe("Not a valid username!")
+      expect(body.msg).toBe("Username invalid! Check you have entered username correctly or create new user account")
       })
   });
 
   test("400: Responds with msg of missing information when username is missing", () => {
     return request(app)
       .post("/api/articles/2/comments") 
-      .send({username: "", body: "THIS IS A TEST COMMENT!"})
+      .send({username: "", body: "THIS IS A TEST COMMENT!"})  //missing username 
       .expect(400)
       .then( ( {body} ) => {
       expect(body.msg).toBe("Missing username or comment to post!")
@@ -230,7 +230,7 @@ describe("POST /api/articles/:article_id/comments ", () => {
   test("400: Responds with msg of missing information when body is missing", () => {
     return request(app)
       .post("/api/articles/2/comments")  
-      .send({username: "butter_bridge", body: ""})
+      .send({username: "butter_bridge", body: ""})  //missing comment to send 
       .expect(400)
       .then( ( {body} ) => {
       expect(body.msg).toBe("Missing username or comment to post!")
@@ -255,7 +255,6 @@ describe("PATCH /api/articles/:article_id", () => {
     .send( { inc_votes: 10 } )
     .expect(200)
     .then(( { body } ) => {
-      console.log(body)
       expect(body.article.votes).toBe(110) //10 votes should have been added on 
     })
   });  
@@ -289,13 +288,5 @@ describe("PATCH /api/articles/:article_id", () => {
       expect(body.msg).toBe("BAD REQUEST - PSQL ERROR!") //PSQL error from global err handler 
     })
   }); 
-}); // block end 
+}); 
 
-
-// Request body accepts:
-// an object in the form { inc_votes: newVote }.
-// newVote will indicate how much the votes property in the database should be updated by, e.g.
-// { inc_votes : 1 } would increment the current article's vote property by 1
-// { inc_votes : -100 } would decrement the current article's vote property by 100
-// Responds with:
-// the updated article
