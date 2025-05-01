@@ -427,3 +427,105 @@ describe("GET /api/articles? - This endpoint now accepts queries of sort_by any 
   //cannot see a way to return a 400 Bad Request from this as the controller filters all non valid sort and order queries and will always return a 200 with default articles array. 
 
 })
+
+describe.only("GET /api/articles?topic=? - This endpoint now accepts a query of topic and will return all articles matching that chosen topic. Else will return all articles", () => {
+  test("200: Returns an array of only the articles matching the chosen topic", () => {
+    return request(app)
+    .get("/api/articles?topic=mitch") // there are 12 articles on this topic 
+    .expect(200)
+    .then(( {body} ) => {   
+      expect(Array.isArray(body.articles)).toBe(true)
+      expect(body.articles).toHaveLength(12)
+      expect(body.articles).toBeSortedBy("created_at", {descending: true}) //should still have default sort and order
+      body.articles.forEach((article) => {
+        expect(article).toHaveProperty("topic")
+        expect(article.topic).toBe("mitch")
+      })
+    })
+  });
+  
+  test("200: Returns an array of only the articles matching the chosen topic", () => {
+    return request(app)
+    .get("/api/articles?topic=cats") // there is 1 article on this topic
+    .expect(200)
+    .then(( {body} ) => {   
+      expect(Array.isArray(body.articles)).toBe(true)
+      expect(body.articles).toHaveLength(1)
+      expect(body.articles).toBeSortedBy("created_at", {descending: true}) //should still have default sort and order
+      body.articles.forEach((article) => {
+        expect(article).toHaveProperty("author")
+        expect(article).toHaveProperty("title")
+        expect(article).toHaveProperty("article_id")
+        expect(article).toHaveProperty("topic")
+        expect(article).toHaveProperty("created_at")
+        expect(article).toHaveProperty("votes")
+        expect(article).toHaveProperty("article_img_url")
+        expect(article).toHaveProperty("comment_count")
+        expect(article.topic).toBe("cats")   //this is the most important check
+      })
+    })
+  });
+
+  test("200: Returns an array of all articles when passed invalid topic to query", () => {
+    return request(app)
+    .get("/api/articles?topic=chicken") // invalid topic
+    .expect(200)
+    .then(( {body} ) => {   
+      console.log(body)
+      expect(Array.isArray(body.articles)).toBe(true)
+      expect(body.articles).toHaveLength(13)    //should return all articles
+      expect(body.articles).toBeSortedBy("created_at", {descending: true})
+
+      expect(body.articles).toContainEqual(   //check it contains at least one article with topic of "mitch"
+        {
+          author: 'icellusedkars',
+          title: 'Z',
+          article_id: 7,
+          topic: 'mitch',
+          created_at: '2020-01-07T14:08:00.000Z',
+          votes: 0,
+          article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700',
+          comment_count: 0
+        }
+      )
+      expect(body.articles).toContainEqual(     //check it contains at least one article with topic of "cats"
+        {
+          author: 'rogersop',
+          title: 'UNCOVERED: catspiracy to bring down democracy',
+          article_id: 5,
+          topic: 'cats',
+          created_at: '2020-08-03T13:14:00.000Z',
+          votes: 0,
+          article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700',
+          comment_count: 2
+        }
+      )
+    })
+  });
+  
+  test("200: Returns an array of all articles when not passed ANY topic to query", () => {
+    return request(app)
+    .get("/api/articles?topic=") // undefined topic
+    .expect(200)
+    .then(( {body} ) => {   
+      expect(Array.isArray(body.articles)).toBe(true)
+      expect(body.articles).toBeSortedBy("created_at", {descending: true})
+      expect(body.articles).toHaveLength(13)
+    })
+  });
+
+  test("200: Returns an array of only the articles matching the chosen topic, sorted_by a new sort by query and in a new order by query", () => {
+    return request(app)
+    .get("/api/articles?sort_by=title&order=asc&topic=mitch") // there is 1 article on this topic
+    .expect(200)
+    .then(( {body} ) => {   
+      console.log(body)
+      expect(Array.isArray(body.articles)).toBe(true)
+      expect(body.articles).toHaveLength(12)
+      expect(body.articles).toBeSortedBy("title", {descending: false}) // should now be ordered asc sorted by title
+      body.articles.forEach((article) => {
+        expect(article.topic).toBe("mitch")   // only articles matching selected topic are returned 
+      })
+    })
+  });
+});
