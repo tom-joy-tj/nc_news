@@ -17,26 +17,37 @@ exports.selectArticlesByID = (chosenArticle) => {
     });
 };
 
-exports.selectArticles = (sortByQuery, orderQuery) => {
+exports.selectArticles = (sortByQuery, orderQuery, chosenTopic) => {
+   
+    let queryValues = []
+    let queryStr = `
+    
+    SELECT 
+        a.author,
+        a.title,
+        a.article_id,
+        a.topic,
+        a.created_at,
+        a.votes,
+        a.article_img_url,
+        COALESCE(COUNT(c.comment_id), 0) :: int AS comment_count
+    FROM 
+        articles a
+    LEFT JOIN 
+        comments c ON a.article_id = c.article_id
+    `;
+
+
+    if (chosenTopic) { 
+        queryValues.push(chosenTopic)
+        queryStr += ` WHERE a.topic = $1`;
+    }
+
+    queryStr += ` GROUP BY a.article_id ORDER BY a.${sortByQuery} ${orderQuery};`
+
     return db
-    .query(`SELECT 
-    a.author,
-    a.title,
-    a.article_id,
-    a.topic,
-    a.created_at,
-    a.votes,
-    a.article_img_url,
-    COALESCE(COUNT(c.comment_id), 0) :: int AS comment_count
-FROM 
-    articles a
-LEFT JOIN 
-    comments c ON a.article_id = c.article_id
-GROUP BY 
-    a.article_id
-ORDER BY 
-    a.${sortByQuery} ${orderQuery}`)
-.then( ( {rows} ) => {
+    .query(queryStr, queryValues)
+    .then( ( {rows} ) => {
     return rows;
 });
 };

@@ -37,9 +37,11 @@ exports.getArticles = (req, res, next) => {
 
     const validQueries = ["article_id", "title", "topic", "author", "created_at", "body", "votes", "article_img_url"] //greenlist
     const validOrders = ["ASC", "DESC"]
+    const validTopics = ["mitch", "cats"]
 
     let sortByQuery = "created_at" //this is the default sort
     let orderQuery = "DESC"  //this is the default order of the sort
+    let chosenTopic = null 
 
     if (req.query.sort_by && validQueries.includes(req.query.sort_by)) {
         sortByQuery = req.query.sort_by
@@ -47,8 +49,11 @@ exports.getArticles = (req, res, next) => {
     if (req.query.order && validOrders.includes(req.query.order.toUpperCase())) {
         orderQuery = req.query.order.toUpperCase()
     }
+    if (req.query.topic && validTopics.includes(req.query.topic)) {
+        chosenTopic = req.query.topic
+    }
 
-    return selectArticles(sortByQuery, orderQuery)
+    return selectArticles(sortByQuery, orderQuery, chosenTopic)
     .then((articles) => {
         if(articles.length === 0) {
             res.status(200).send( { msg: "No articles found - run seed and try again" } )
