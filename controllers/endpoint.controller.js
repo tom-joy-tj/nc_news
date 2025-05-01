@@ -21,7 +21,7 @@ exports.getArticlesByID = (req, res, next) => {
 
     return selectArticlesByID(chosenArticle) 
     .then((article) => {
-        if (article.length === 0) {
+        if (!article) {
             return Promise.reject( { status: 404, msg: `No article found at Article ID: ${chosenArticle}!`})
         } 
         else {
@@ -73,7 +73,7 @@ exports.getCommentsByArticle = (req, res, next) => {
 
     selectArticlesByID(chosenArticle)
     .then((article) => {
-        if (article.length === 0) {
+        if (!article) {
             return Promise.reject( { status: 404, msg: `Cannot find Article: ${chosenArticle}!` } )
         }
         return selectCommentsByArticle(chosenArticle)

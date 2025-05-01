@@ -71,17 +71,15 @@ describe("GET /api/articles/:articleid", () => {
       .get("/api/articles/3")
       .expect(200)
       .then(({body}) => {
-        expect(Array.isArray(body.article)).toBe(true)
-        expect(body.article).toHaveLength(1)
-        expect(body.article[0]).toBeInstanceOf(Object)
-        expect(body.article[0]).toHaveProperty("author")
-        expect(body.article[0]).toHaveProperty("title")
-        expect(body.article[0]).toHaveProperty("article_id")
-        expect(body.article[0]).toHaveProperty("body")
-        expect(body.article[0]).toHaveProperty("topic")
-        expect(body.article[0]).toHaveProperty("created_at")
-        expect(body.article[0]).toHaveProperty("votes")
-        expect(body.article[0]).toHaveProperty("article_img_url")
+        expect(body.article).toBeInstanceOf(Object)
+        expect(body.article).toHaveProperty("author")
+        expect(body.article).toHaveProperty("title")
+        expect(body.article).toHaveProperty("article_id")
+        expect(body.article).toHaveProperty("body")
+        expect(body.article).toHaveProperty("topic")
+        expect(body.article).toHaveProperty("created_at")
+        expect(body.article).toHaveProperty("votes")
+        expect(body.article).toHaveProperty("article_img_url")
       });
   });
   test("200: Responds with an article object with properties of author, title, article_id, body, topic, created_at, votes, article_img_url", () => {
@@ -89,9 +87,7 @@ describe("GET /api/articles/:articleid", () => {
       .get("/api/articles/6")
       .expect(200)
       .then(({body}) => {
-        expect(Array.isArray(body.article)).toBe(true)
-        expect(body.article).toHaveLength(1)
-        const article = body.article[0]
+        const article = body.article
         expect(article).toMatchObject( {
           author: 'icellusedkars',
           title: 'A',
@@ -119,6 +115,25 @@ describe("GET /api/articles/:articleid", () => {
       .expect(400)
       .then(({body}) => {
         expect(body.msg).toBe("BAD REQUEST - PSQL ERROR!")
+      });
+  });
+  test("200: Responds with an article object with properties of author, title, article_id, body, topic, created_at, votes, article_img_url AND comment_count", () => {
+    return request(app)
+      .get("/api/articles/1")
+      .expect(200)
+      .then(({body}) => {
+        expect(typeof body.article).toBe("object")
+        expect(body.article).toHaveProperty("author")
+        expect(body.article).toHaveProperty("title")
+        expect(body.article).toHaveProperty("article_id")
+        expect(body.article).toHaveProperty("body")
+        expect(body.article).toHaveProperty("topic")
+        expect(body.article).toHaveProperty("created_at")
+        expect(body.article).toHaveProperty("votes")
+        expect(body.article).toHaveProperty("article_img_url")
+        expect(body.article).toHaveProperty("comment_count")
+        expect(body.article.comment_count).toBe(11)
+        expect(typeof body.article.comment_count).toBe("number")
       });
   });
 });
@@ -428,7 +443,7 @@ describe("GET /api/articles? - This endpoint now accepts queries of sort_by any 
 
 })
 
-describe.only("GET /api/articles?topic=? - This endpoint now accepts a query of topic and will return all articles matching that chosen topic. Else will return all articles", () => {
+describe("GET /api/articles?topic=? - This endpoint now accepts a query of topic and will return all articles matching that chosen topic. Else will return all articles", () => {
   test("200: Returns an array of only the articles matching the chosen topic", () => {
     return request(app)
     .get("/api/articles?topic=mitch") // there are 12 articles on this topic 
