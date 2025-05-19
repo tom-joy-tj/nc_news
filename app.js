@@ -1,9 +1,12 @@
 const express = require("express"); 
 const app = express(); 
+const cors = require('cors');
 
 const { getAPI, getTopics, getArticlesByID, getArticles, getCommentsByArticle, postCommentByArticle, patchArticlesByID, removeCommentByID, getUsers } = require("./controllers/endpoint.controller.js");
 
 const { handlePsqlError, handleCustomError, handle500Error } = require("./controllers/error.controller.js");
+
+app.use(cors());
 
 app.use(express.json());
 
