@@ -109,7 +109,7 @@ exports.postCommentByArticle = (req, res, next) => {
         if (postedComment.length === 0) {
             return Promise.reject( { status: 404, msg: "Article not found!" } )
         }
-        res.status(201).send( { comment : postedComment[0].body } )
+        res.status(201).send( postedComment[0] )
     })
     .catch((err) => {
         next(err)

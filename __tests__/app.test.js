@@ -218,7 +218,14 @@ describe("POST /api/articles/:article_id/comments ", () => {
       .send({username: "butter_bridge", body: "THIS IS A TEST COMMENT!"})
       .expect(201)
       .then( ( {body} ) => {
-        expect(body).toEqual( { comment: 'THIS IS A TEST COMMENT!' } )
+        expect(body).toEqual(expect.objectContaining({
+          body: 'THIS IS A TEST COMMENT!',
+          author: 'butter_bridge',
+          article_id: 2,
+          votes: 0,
+        }))
+        expect(body).toHaveProperty("comment_id")
+        expect(body).toHaveProperty("created_at")
       })
   });
 
@@ -486,7 +493,6 @@ describe("GET /api/articles?topic=? - This endpoint now accepts a query of topic
     .get("/api/articles?topic=chicken") // invalid topic
     .expect(200)
     .then(( {body} ) => {   
-      console.log(body)
       expect(Array.isArray(body.articles)).toBe(true)
       expect(body.articles).toHaveLength(13)    //should return all articles
       expect(body.articles).toBeSortedBy("created_at", {descending: true})
@@ -534,7 +540,6 @@ describe("GET /api/articles?topic=? - This endpoint now accepts a query of topic
     .get("/api/articles?sort_by=title&order=asc&topic=mitch") // there is 1 article on this topic
     .expect(200)
     .then(( {body} ) => {   
-      console.log(body)
       expect(Array.isArray(body.articles)).toBe(true)
       expect(body.articles).toHaveLength(12)
       expect(body.articles).toBeSortedBy("title", {descending: false}) // should now be ordered asc sorted by title
